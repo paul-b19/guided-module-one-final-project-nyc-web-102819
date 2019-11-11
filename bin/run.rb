@@ -1,6 +1,6 @@
-require_relative 'config/environment'
+require_relative '../config/environment'
 
-def start
-
-end
+new_cli = CommandLineInterface.new
+new_cli.greeting
+new_cli.login_prompt
 
