@@ -13,6 +13,7 @@ author1 = Author.create(name: "Edgar Allan Poe")
 # author5 = Author.create("Trewaine the Damager")
 
 poem1 = Poem.create(title: "The Raven", length: 5, content: "The raven /n Never more /n Ever more /n Some more /n Haha", author_id: 1)
+poem2 = Poem.create(title: "The Raven", length: 5, content: "Part 2 Scoopty", author_id: 1)
 #   create_table "poems", force: :cascade do |t|
 #     t.string "title"
 #     t.integer "length"
