@@ -6,10 +6,6 @@ class User < ActiveRecord::Base
     has_many :lessons
     has_many :poems, through: :lessons
 
-    # def self.validate(instance) 
-    #     instance.validate /^(?=.{2,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/
-    # end
-
     def self.name_inputs
         @first_name = @@prompt.ask("Enter your first name:") { |input| input.validate /^(?=.{1,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/, "Sorry, your entry must be at least 2 characters and not contain symbols." }
         @last_name = @@prompt.ask("Enter your last name:") { |input| input.validate /^(?=.{1,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/, "Sorry, your entry must be at least 2 characters and not contain symbols." }
@@ -31,11 +27,19 @@ class User < ActiveRecord::Base
     end
     
     def self.account_creation
+        CommandLineInterface.logo("./design/logo_small.png", false)
+
         @@user = User.create(first_name: "#{@first_name}", last_name: "#{@last_name}", username: "#{@username}", password: "#{@password}")
         puts "Congrats, #{@first_name}! Your account has been created."
     end
 
+    def self.user_id
+        @@user.id
+    end
+
     def self.login_logic
+        CommandLineInterface.logo("./design/logo_small.png", false)
+
         @@user = User.find_by(username: "#{@username}")
         if @@user && @@user.password == @password
             puts "Hi, #{@@user.first_name}!"
@@ -46,6 +50,8 @@ class User < ActiveRecord::Base
     end
 
     def self.delete_account
+        CommandLineInterface.logo("./design/logo_small.png", false)
+
         @@decision = @@prompt.select("Are you sure?", ["Yes", "No"])
         if @@decision == "Yes"
             @@user.destroy
