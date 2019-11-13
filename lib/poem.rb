@@ -42,10 +42,17 @@ class Poem < ActiveRecord::Base
             menu.choice '* Back to Main Menu', -> {
                 CommandLineInterface.logo("./design/logo_small.png", false);  
                 CommandLineInterface.general_menu}
-            menu.choice '* Add to Your Collection and Back to Main Menu', -> {
-                Lesson.lesson_creation(user_id: User.user_id, poem_id: i.id);
-                CommandLineInterface.logo("./design/logo_small.png", false);
-                CommandLineInterface.general_menu}
+            if Lesson.exists?(user_id: User.user_id, poem_id: i.id)
+                menu.choice '* Delete from Your Collection and Back to Main Menu', -> {
+                    Lesson.find_by(user_id: User.user_id, poem_id: i.id).destroy
+                    CommandLineInterface.logo("./design/logo_small.png", false);
+                    CommandLineInterface.general_menu}
+            else
+                menu.choice '* Add to Your Collection and Back to Main Menu', -> {
+                    Lesson.lesson_creation(user_id: User.user_id, poem_id: i.id);
+                    CommandLineInterface.logo("./design/logo_small.png", false);
+                    CommandLineInterface.general_menu}
+            end
         end  
     end
 

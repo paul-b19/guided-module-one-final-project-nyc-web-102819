@@ -50,8 +50,8 @@ class CommandLineInterface
         @@menu_selection = @@prompt.select("Please select one of the options below:") do |menu|
             menu.choice '* Search for Poem', -> {Poem.search_for_poem}
             menu.choice '* Open your Collection', -> {Lesson.lesson_selection}
-            menu.choice '* Log out', -> {CommandLineInterface.new.run}
             menu.choice '* Delete your Account', -> {User.delete_account}
+            menu.choice '* Log out', -> {CommandLineInterface.new.run}
         end
     end
 
