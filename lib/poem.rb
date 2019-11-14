@@ -49,6 +49,7 @@ class Poem < ActiveRecord::Base
         puts i.title.colorize(:color => :black, :background => :white)
         puts "By #{i.author.name}".colorize(:color => :black, :background => :white)
         puts i.content
+        say i.content
         puts " "
         @@menu_selection_footer = @@prompt.select("Options:") do |menu|
             menu.choice '* Play Music', -> {Poem.music_selection}
