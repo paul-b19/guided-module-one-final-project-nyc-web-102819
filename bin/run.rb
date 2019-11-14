@@ -1,9 +1,8 @@
 require_relative '../config/environment'
 
-def start
-    new_cli = CommandLineInterface.new
-    new_cli.run
+def start_program
+    CommandLineInterface.new.run
 end
 
-start
+start_program
 

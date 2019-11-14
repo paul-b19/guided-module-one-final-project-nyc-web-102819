@@ -1,75 +1,116 @@
-require "tty-prompt"
+require 'tty-prompt'
 class User < ActiveRecord::Base
-
-    @@prompt = TTY::Prompt.new
 
     has_many :lessons
     has_many :poems, through: :lessons
 
-    def self.name_inputs
-        @first_name = @@prompt.ask("Enter your first name:") { |input| input.validate /^(?=.{1,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/, "Sorry, your entry must be at least 2 characters and not contain symbols." }
-        @last_name = @@prompt.ask("Enter your last name:") { |input| input.validate /^(?=.{1,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/, "Sorry, your entry must be at least 2 characters and not contain symbols." }
-    end
+    @prompt = TTY::Prompt.new
 
-    def self.login_inputs
-        @username = @@prompt.ask("Enter username:") { |input| input.validate /^(?=.{1,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/, "Sorry, your entry must be at least 2 characters and not contain symbols." }
-        @password = @@prompt.mask("Enter password:") { |input| input.validate /^^(?=.{1,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/, "Sorry, your entry must be at least 2 characters and not contain symbols." }
-    end
-
-    def self.creation_inputs
-        @username = @@prompt.ask("Enter username:") { |input| input.validate /^(?=.{1,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/, "Sorry, your entry must be at least 2 characters and not contain symbols." }
-        if User.find_by(username: "#{@username}")
-            puts "Username already exists. Try again." 
-            creation_inputs
-        else
-            @password = @@prompt.mask("Enter password:") { |input| input.validate /^^(?=.{1,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/, "Sorry, your entry must be at least 2 characters and not contain symbols." }
-        end
-    end
-    
-    def self.account_creation
-        CommandLineInterface.logo("./design/logo_small.png", false)
-
-        @@user = User.create(first_name: "#{@first_name}", last_name: "#{@last_name}", username: "#{@username}", password: "#{@password}")
-        puts "Congrats, #{@first_name}! Your account has been created."
-    end
-
-    def self.user_id
-        @@user.id
-    end
-
-    def self.login_logic
-        CommandLineInterface.logo("./design/logo_small.png", false)
-
-        @@user = User.find_by(username: "#{@username}")
-        if @@user && @@user.password == @password
-            puts "Hi, #{@@user.first_name}!"
-        else
-            puts "Your username and/or password is incorrect. Please try again."
-            login_verification
-        end
-    end
-
-    def self.delete_account
-        CommandLineInterface.logo("./design/logo_small.png", false)
-
-        @@decision = @@prompt.select("Are you sure?", ["Yes", "No"])
-        if @@decision == "Yes"
-            @@user.destroy
-            @@prompt.keypress("Oh, no. We're sad to see you leave, but here's a killer infinite loop for ya! Press any key to continue, resumes automatically in 5 seconds ...", timeout: 5)
-            start
-        else 
-            CommandLineInterface.general_menu
-        end
-    end
-
+    ##### Logic for creating a new account #####
     def self.create_account_instance
-        name_inputs
-        creation_inputs
+        first_name
+        last_name
+        username_and_password_flow
         account_creation
     end
 
+    def self.first_name
+        @first_name = validate("ask", "first name")
+    end
+
+    def self.last_name
+        @last_name = validate("ask", "last name")
+    end
+
+    def self.username
+        @username = validate("ask", "username")
+    end
+
+    def self.password
+        @password = validate("mask", "password")
+    end
+
+    def self.username_and_password_flow
+        username
+        find_existing_username ? username_exists_try_again : password
+    end
+
+    def self.find_existing_username
+        self.find_by(username: "#{@username}")
+    end
+
+    def self.username_exists_try_again
+        puts "Username already exists. Try again."
+        username_and_password_flow
+    end
+
+    def self.account_creation
+        @created_user = User.create(first_name: "#{@first_name}", last_name: "#{@last_name}", username: "#{@username}", password: "#{@password}")
+        @@active_user = @created_user if !@@active_user
+        puts "Congrats, #{@first_name}! Your account has been created."
+    end
+
+    ##### Logic for logging into your account #####
+
+    def self.login_prompt
+        @question = @prompt.select("Would you like to?", ["Login", "Sign Up"])
+        @question == "Login" ? login_verification : create_account_instance
+    end
+
     def self.login_verification
-        login_inputs
+        username
+        find_existing_username ? password : username_does_not_exist
         login_logic
+    end
+
+    def self.username_does_not_exist
+        puts "Username does not exist. Try again."
+        login_verification
+    end
+
+    def self.login_logic
+        @@active_user = find_existing_username
+        @@active_user && @@active_user.password == @password ? (puts "Hi, #{@@active_user.first_name}!") : user_pass_verify_again
+    end
+
+    def self.user_pass_verify_again
+        puts "Your username and/or password is incorrect. Please try again."
+        login_verification
+    end
+
+    ##### Logic for deleting your account #####
+
+    def self.delete_account_flow
+        @decision = @prompt.select("Are you sure?", ["Yes", "No"])
+        @decision == "Yes" ? destroy_account : CommandLineInterface.general_menu
+    end
+
+    def self.destroy_account
+        @@active_user.destroy
+        @prompt.keypress("Oh, no! We're sad to see you leave, but we'll see you again in 3 seconds...", timeout: 3)
+        start_program
+    end
+
+    ##### General abstraction method for data validation #####
+
+    def self.validate(method, type)
+        if method == "ask" 
+            @prompt.ask("Enter your #{type}:") { |input| input.validate /^^(?=.{1,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/, "Sorry, your entry must be at least 2 characters and not contain symbols." }
+        else
+            @prompt.mask("Enter your #{type}:") { |input| input.validate /^^(?=.{1,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/, "Sorry, your entry must be at least 2 characters and not contain symbols." }
+        end
+    end
+
+    ##### General helper method used in other Classes #####
+
+    #Used in the Collections feature in the Lesson Class#
+    def self.user_id
+        @@active_user.id
+    end
+
+    #Used in the General Menu feature in the CLI Class#
+    def self.logout
+        @prompt.keypress("😈 Logging out now... See you soon! 😈", timeout: 3)
+        start_program
     end
 end
