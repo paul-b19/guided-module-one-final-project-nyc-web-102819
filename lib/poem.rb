@@ -22,11 +22,21 @@ class Poem < ActiveRecord::Base
 
         @@title_search = @@prompt.ask("Please enter the title you are looking for:"){ 
             |input| input.validate /^^(?=.{1,40}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._ ]+(?<![_.])$/, "Sorry, your title entry must be at least 1 character and not contain special symbols." }
-        p = Poem.where("title like ?", "%#{@@title_search}%").map do |poem|
-            poem.title
+        if Poem.find_by("title like ?", "%#{@@title_search}%")
+            p = Poem.where("title like ?", "%#{@@title_search}%").map do |poem|
+                poem.title
+            end
+            @@selected_title = @@prompt.select("Select Poem:", p) 
+            poem_title({title: @@selected_title}) 
+        else
+            puts "Sorry, poem was not found. Please try another input."
+            @@menu_selection_footer = @@prompt.select("Options:") do |menu|
+                menu.choice '* Try Again', -> {search_by_title}
+                menu.choice '* Back to Main Menu', -> {
+                    CommandLineInterface.logo("./design/logo_small.png", false);
+                    CommandLineInterface.general_menu}
+            end
         end
-        @@selected_title = @@prompt.select("Select Poem:", p) 
-        poem_title({title: @@selected_title}) 
     end
 
     def self.poem_title(arg)

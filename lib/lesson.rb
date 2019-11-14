@@ -4,12 +4,6 @@ class Lesson < ActiveRecord::Base
 
     belongs_to :user
     belongs_to :poem
-
-    # def self.lesson_creation(arg)
-    #     @variable = Lesson.create(arg)
-    #     @variable.favorite = false
-    #     # Lesson.find_by(id: @variable.id).update_attribute(favorite, false)
-    # end
     
     def self.lesson_creation(arg)
         @variable = Lesson.find_or_create_by(arg)
