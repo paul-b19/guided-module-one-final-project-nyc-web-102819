@@ -15,6 +15,7 @@ class Lesson < ActiveRecord::Base
         end
         if l.count == 0
             @@prompt.keypress ("There is nothing in Your Collection yet, press any key to go back to Main Menu")
+            CommandLineInterface.logo("./design/logo_small.png", false)
             CommandLineInterface.general_menu 
         else  
             @@selected_lesson = @@prompt.select("Select Poem:", l)

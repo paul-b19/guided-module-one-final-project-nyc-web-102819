@@ -6,6 +6,7 @@ class Author < ActiveRecord::Base
     @@prompt = TTY::Prompt.new
 
     def self.search_by_author
+        CommandLineInterface.logo("./design/logo_small.png", false)
         @@author_search = @@prompt.ask("Please enter the author you are looking for:"){ 
             |input| input.validate /^^(?=.{1,40}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._ ]+(?<![_.])$/, "Sorry, your author entry must be at least 1 character and not contain special symbols." }
         if Author.find_by("name like ?", "%#{@@author_search}%")
@@ -25,9 +26,7 @@ class Author < ActiveRecord::Base
             puts "Sorry, author was not found. Please try another input."
             @@menu_selection_footer = @@prompt.select("Options:") do |menu|
                 menu.choice '* Try Again', -> {search_by_author}
-                menu.choice '* Back to Main Menu', -> {
-                    CommandLineInterface.logo("./design/logo_small.png", false);
-                    CommandLineInterface.general_menu}
+                menu.choice '* Back to Poem Search', -> {Poem.search_for_poem}
             end
         end
     end

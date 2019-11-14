@@ -7,6 +7,7 @@ class User < ActiveRecord::Base
     @prompt = TTY::Prompt.new
 
     ##### Logic for creating a new account #####
+    
     def self.create_account_instance
         first_name
         last_name
@@ -46,7 +47,7 @@ class User < ActiveRecord::Base
 
     def self.account_creation
         @created_user = User.create(first_name: "#{@first_name}", last_name: "#{@last_name}", username: "#{@username}", password: "#{@password}")
-        @@active_user = @created_user if !@@active_user
+        @@active_user = @created_user
         puts "Congrats, #{@first_name}! Your account has been created."
     end
 
@@ -56,9 +57,10 @@ class User < ActiveRecord::Base
         @question = @prompt.select("Would you like to?", ["Login", "Sign Up"])
         @question == "Login" ? login_verification : create_account_instance
     end
-
+    
     def self.login_verification
         username
+        puts "If you would like to return to the opening menu, simply enter an incorrect password"
         find_existing_username ? password : username_does_not_exist
         login_logic
     end
@@ -70,12 +72,13 @@ class User < ActiveRecord::Base
 
     def self.login_logic
         @@active_user = find_existing_username
-        @@active_user && @@active_user.password == @password ? (puts "Hi, #{@@active_user.first_name}!") : user_pass_verify_again
+        user_pass_verify_again if !(@@active_user && @@active_user.password == @password)
     end
 
     def self.user_pass_verify_again
-        puts "Your username and/or password is incorrect. Please try again."
-        login_verification
+        puts "Your username and/or password is incorrect. Returning to the opening menu."
+        sleep(1.5)
+        login_prompt
     end
 
     ##### Logic for deleting your account #####
