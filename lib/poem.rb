@@ -49,40 +49,52 @@ class Poem < ActiveRecord::Base
         puts i.title.colorize(:color => :black, :background => :white)
         puts "By #{i.author.name}".colorize(:color => :black, :background => :white)
         puts i.content
-        say i.content
         puts " "
         @@menu_selection_footer = @@prompt.select("Options:") do |menu|
             menu.choice '* Play Music', -> {Poem.music_selection}
-            menu.choice '* Back to Title Search', -> {Poem.search_by_title}
+            menu.choice '* Stop Music', -> {Poem.stop_song}
             if Lesson.exists?(user_id: User.user_id, poem_id: i.id)
-                menu.choice '➖ Remove from your collection', -> {
+                menu.choice '* Remove from your collection', -> {
                     Lesson.find_by(user_id: User.user_id, poem_id: i.id).destroy
                     CommandLineInterface.logo("./design/logo_small.png", false);
                     CommandLineInterface.general_menu}
             else
-                menu.choice '➕ Add to collection', -> {
+                menu.choice '* Add to collection', -> {
                     Lesson.lesson_creation(user_id: User.user_id, poem_id: i.id);
                     CommandLineInterface.logo("./design/logo_small.png", false);
                     CommandLineInterface.general_menu}
             end
+            menu.choice '* Back to Title Search', -> {Poem.search_by_title}
         end  
     end
 
     def self.music_selection
         @@song_choice = @@prompt.select("Please select one of the options below:") do |menu|
-            menu.choice '* Song of the Gods', -> {CommandLineInterface.song("/Users/hectorpolanco/Development/mod_one_project/mod-one-dpc-final-project-nyc-web-102819/music/Halo.mp3")}
-            menu.choice '* Brandenburg Concerto', -> {CommandLineInterface.song("/Users/hectorpolanco/Development/mod_one_project/mod-one-dpc-final-project-nyc-web-102819/music/BrandenburgConcerto.mp3")}
-            menu.choice '* Consolation 3', -> {CommandLineInterface.song("/Users/hectorpolanco/Development/mod_one_project/mod-one-dpc-final-project-nyc-web-102819/music/Consolation3.mp3")}
-            menu.choice '* Four Seasons Spring', -> {CommandLineInterface.song("/Users/hectorpolanco/Development/mod_one_project/mod-one-dpc-final-project-nyc-web-102819/music/FourSeasonsSpring.mp3")}
-            menu.choice '* Fur Elise', -> {CommandLineInterface.song("/Users/hectorpolanco/Development/mod_one_project/mod-one-dpc-final-project-nyc-web-102819/music/FurElise.mp3")}
-            menu.choice '* Moonlight Sonata', -> {CommandLineInterface.song("/Users/hectorpolanco/Development/mod_one_project/mod-one-dpc-final-project-nyc-web-102819/music/MoonlightSonata.mp3")}
-            menu.choice '* Requiem Lacrimosa', -> {CommandLineInterface.song("/Users/hectorpolanco/Development/mod_one_project/mod-one-dpc-final-project-nyc-web-102819/music/RequiemLacrimosa.mp3")}
-            menu.choice "* Salut D'Amour", -> {CommandLineInterface.song("/Users/hectorpolanco/Development/mod_one_project/mod-one-dpc-final-project-nyc-web-102819/music/SalutD'Amour.mp3")}
-            menu.choice '* Scherezade Op. 35. III', -> {CommandLineInterface.song("/Users/hectorpolanco/Development/mod_one_project/mod-one-dpc-final-project-nyc-web-102819/music/ScherezadeOp35.mp3")}
-            menu.choice '* Suite Bergamasque', -> {CommandLineInterface.song("/Users/hectorpolanco/Development/mod_one_project/mod-one-dpc-final-project-nyc-web-102819/music/SuiteBergamasque.mp3")}
-            menu.choice '* Swan Lake Finale', -> {CommandLineInterface.song("/Users/hectorpolanco/Development/mod_one_project/mod-one-dpc-final-project-nyc-web-102819/music/SwanLake.mp3")}
-            menu.choice '* Tragic Overture', -> {CommandLineInterface.song("/Users/hectorpolanco/Development/mod_one_project/mod-one-dpc-final-project-nyc-web-102819/music/TragicOverture.mp3")}
+            menu.choice '* Song of the Gods', -> {song("./music/Halo.mp3")}
+            menu.choice '* Brandenburg Concerto', -> {song("./music/BrandenburgConcerto.mp3")}
+            menu.choice '* Consolation 3', -> {song("./music/Consolation3.mp3")}
+            menu.choice '* Four Seasons Spring', -> {song("./music/FourSeasonsSpring.mp3")}
+            menu.choice '* Fur Elise', -> {song("./music/FurElise.mp3")}
+            menu.choice '* Moonlight Sonata', -> {song("./music/MoonlightSonata.mp3")}
+            menu.choice '* Requiem Lacrimosa', -> {song("./music/RequiemLacrimosa.mp3")}
+            menu.choice "* Salut D'Amour", -> {song("./music/SalutD'Amour.mp3")}
+            menu.choice '* Scherezade Op. 35. III', -> {song("./music/ScherezadeOp35.mp3")}
+            menu.choice '* Suite Bergamasque', -> {song("./music/SuiteBergamasque.mp3")}
+            menu.choice '* Swan Lake Finale', -> {song("./music/SwanLake.mp3")}
+            menu.choice '* Tragic Overture', -> {song("./music/TragicOverture.mp3")}
         end
+        poem_title({title: @@selected_title})
+    end
+
+    def self.song(file_path)
+        pid = fork{ exec 'killall', "afplay" }
+        sleep(0.5)
+        pid = fork{ exec 'afplay', file_path }
+    end
+
+    def self.stop_song
+        pid = fork{ exec 'killall', "afplay" }
+        CommandLineInterface.logo("./design/logo_small.png", false);
         poem_title({title: @@selected_title})
     end
 

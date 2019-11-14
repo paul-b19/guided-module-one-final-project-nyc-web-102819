@@ -9,3 +9,10 @@ gem "tty-prompt"
 gem "catpix"
 gem "rest-client"
 gem "colorize"
+
+# gem install ‘catpix’
+# if doesn’t work, do:
+# brew install imagemagick@6
+# brew link --force imagemagick@6
+# gem install rmagick
+# gem install ‘catpix’
