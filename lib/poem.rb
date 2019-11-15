@@ -9,6 +9,7 @@ class Poem < ActiveRecord::Base
 
     def self.search_for_poem
         CommandLineInterface.logo("./design/logo_small.png", false)
+        puts " "
         @@prompt.select("Choose one of the following options:") do |menu|
             menu.choice "📚  Search by Title", -> {search_by_title}
             menu.choice "🖋   Search by Author", -> {Author.search_by_author}
@@ -20,6 +21,7 @@ class Poem < ActiveRecord::Base
 
     def self.search_by_title
         CommandLineInterface.logo("./design/logo_small.png", false)
+        puts " "
         @@title_search = @@prompt.ask("Please enter the title you are looking for:"){ 
             |input| input.validate /^^(?=.{1,40}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._ ]+(?<![_.])$/, 
             "Sorry, your title entry must be at least 1 character and not contain special symbols." }
@@ -67,7 +69,10 @@ class Poem < ActiveRecord::Base
     end
 
     def self.music_selection(arg)
+        CommandLineInterface.logo("./design/logo_small.png", false)
+        puts " "
         @@prompt.select("Please select music:") do |menu|
+            puts " "
             Dir['./music/*'].sort.each do |fname|
                 menu.choice "🎵 #{fname}".tap{|s| 
                 s.slice!("./music/")}.tap{|s| 

@@ -47,6 +47,7 @@ class User < ActiveRecord::Base
 
     def self.login_prompt
         @prompt.select("Would you like to?") do |menu|
+            puts " "
             menu.choice '🔑  Login', -> {login_verification}
             menu.choice '✨  Sign Up', -> {create_account_instance}
             menu.choice '🚪  Exit', -> {puts "\e[H\e[2J"; exit}
@@ -58,6 +59,7 @@ class User < ActiveRecord::Base
         if find_existing_username
             password
         else
+            puts " "
             puts "Username does not exist. Try again."
             login_verification
         end
@@ -70,6 +72,7 @@ class User < ActiveRecord::Base
     end
 
     def self.user_pass_verify_again
+        puts " "
         puts "Your username and/or password is incorrect. Returning to the opening menu."
         sleep(1.5)
         login_prompt
@@ -78,12 +81,14 @@ class User < ActiveRecord::Base
     ##### Logic for deleting your account #####
 
     def self.delete_account_flow
+        puts " "
         @decision = @prompt.select("Are you sure you want to delete your account?", ["Yes", "No"])
         @decision == "Yes" ? destroy_account : CommandLineInterface.general_menu
     end
 
     def self.destroy_account
         @@active_user.destroy
+        puts " "
         @prompt.keypress("Oh, no! We're sad to see you leave, but we'll see you again in 3 seconds...", timeout: 3)
         fork{ exec 'killall', "afplay" }
         start_program
@@ -108,6 +113,7 @@ class User < ActiveRecord::Base
 
     #Used in the General Menu feature in the CLI Class#
     def self.logout
+        puts " "
         @prompt.keypress("😈  Logging out now... See you soon!  😈", timeout: 3)
         fork{ exec 'killall', "afplay" }
         start_program
