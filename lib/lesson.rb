@@ -6,13 +6,13 @@ class Lesson < ActiveRecord::Base
     belongs_to :poem
     
     def self.lesson_creation(arg)
-        @variable = Lesson.find_or_create_by(arg)
+        Lesson.find_or_create_by(arg)
     end
 
     def self.lesson_selection
         l = Lesson.where(user_id: User.user_id).map do |lesson|
             Poem.find_by(id: lesson.poem_id).title
-        end
+        end.sort
         if l.count == 0
             @@prompt.keypress ("There is nothing in Your Collection yet, press any key to go back to Main Menu")
             CommandLineInterface.logo("./design/logo_small.png", false)

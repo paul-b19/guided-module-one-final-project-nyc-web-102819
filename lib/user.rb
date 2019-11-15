@@ -9,18 +9,10 @@ class User < ActiveRecord::Base
     ##### Logic for creating a new account #####
     
     def self.create_account_instance
-        first_name
-        last_name
+        @first_name = validate("ask", "first name")
+        @last_name = validate("ask", "last name")
         username_and_password_flow
         account_creation
-    end
-
-    def self.first_name
-        @first_name = validate("ask", "first name")
-    end
-
-    def self.last_name
-        @last_name = validate("ask", "last name")
     end
 
     def self.username
@@ -33,16 +25,16 @@ class User < ActiveRecord::Base
 
     def self.username_and_password_flow
         username
-        find_existing_username ? username_exists_try_again : password
+        if find_existing_username
+            puts "Username already exists. Try again."
+            username_and_password_flow
+        else
+            password
+        end
     end
 
     def self.find_existing_username
         self.find_by(username: "#{@username}")
-    end
-
-    def self.username_exists_try_again
-        puts "Username already exists. Try again."
-        username_and_password_flow
     end
 
     def self.account_creation
@@ -54,20 +46,23 @@ class User < ActiveRecord::Base
     ##### Logic for logging into your account #####
 
     def self.login_prompt
-        @question = @prompt.select("Would you like to?", ["Login", "Sign Up"])
-        @question == "Login" ? login_verification : create_account_instance
+        @prompt.select("Would you like to?") do |menu|
+            menu.choice '* Login', -> {login_verification}
+            menu.choice '* Sign Up', -> {create_account_instance}
+            menu.choice '* Exit', -> {puts "\e[H\e[2J"; exit}
+        end
     end
     
     def self.login_verification
         username
         puts "If you would like to return to the opening menu, simply enter an incorrect password"
-        find_existing_username ? password : username_does_not_exist
+        if find_existing_username
+            password
+        else
+            puts "Username does not exist. Try again."
+            login_verification
+        end
         login_logic
-    end
-
-    def self.username_does_not_exist
-        puts "Username does not exist. Try again."
-        login_verification
     end
 
     def self.login_logic
@@ -91,6 +86,7 @@ class User < ActiveRecord::Base
     def self.destroy_account
         @@active_user.destroy
         @prompt.keypress("Oh, no! We're sad to see you leave, but we'll see you again in 3 seconds...", timeout: 3)
+        fork{ exec 'killall', "afplay" }
         start_program
     end
 
@@ -114,6 +110,7 @@ class User < ActiveRecord::Base
     #Used in the General Menu feature in the CLI Class#
     def self.logout
         @prompt.keypress("😈 Logging out now... See you soon! 😈", timeout: 3)
+        fork{ exec 'killall', "afplay" }
         start_program
     end
 end

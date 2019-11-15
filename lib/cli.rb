@@ -12,7 +12,6 @@ class CommandLineInterface
 
     def self.logo(file_path, y_position)
         puts "\e[H\e[2J"
-
         Catpix::print_image file_path,
         :limit_x => 1.0,
         :limit_y => 0,
@@ -22,10 +21,6 @@ class CommandLineInterface
         :bg_fill => true,
         :resolution => "high"
     end
-    
-    def self.abstracted_logo
-        CommandLineInterface.logo("./design/logo.png", true)
-    end
 
     def self.greeting
         CommandLineInterface.logo("./design/logo.png", true)
@@ -34,7 +29,7 @@ class CommandLineInterface
     end
 
     def self.general_menu
-        @@menu_selection = @@prompt.select("Please select one of the options below:") do |menu|
+        @@prompt.select("Please select one of the options below:") do |menu|
             menu.choice '* Search for Poem', -> {Poem.search_for_poem}
             menu.choice '* Open your Collection', -> {
                 CommandLineInterface.logo("./design/logo_small.png", false);
