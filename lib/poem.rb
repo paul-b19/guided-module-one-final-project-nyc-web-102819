@@ -9,7 +9,7 @@ class Poem < ActiveRecord::Base
 
     def self.search_for_poem
         CommandLineInterface.logo("./design/logo_small.png", false)
-        @@prompt.select("Select one of the following options:") do |menu|
+        @@prompt.select("Choose one of the following options:") do |menu|
             menu.choice "📚  Search by Title", -> {search_by_title}
             menu.choice "🖋   Search by Author", -> {Author.search_by_author}
             menu.choice "🏡  Main Menu", -> {
