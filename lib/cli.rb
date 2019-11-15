@@ -29,7 +29,7 @@ class CommandLineInterface
     end
 
     def self.general_menu
-        @@prompt.select("Please select one of the options below:") do |menu|
+        @@prompt.select("Choose one of the options below:") do |menu|
             menu.choice '🔍 Poem Search', -> {Poem.search_for_poem}
             menu.choice '❤️  My Collection', -> {
                 CommandLineInterface.logo("./design/logo_small.png", false);
