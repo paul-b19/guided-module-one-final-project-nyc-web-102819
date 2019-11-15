@@ -47,15 +47,14 @@ class User < ActiveRecord::Base
 
     def self.login_prompt
         @prompt.select("Would you like to?") do |menu|
-            menu.choice '* Login', -> {login_verification}
-            menu.choice '* Sign Up', -> {create_account_instance}
-            menu.choice '* Exit', -> {puts "\e[H\e[2J"; exit}
+            menu.choice '🔑  Login', -> {login_verification}
+            menu.choice '✨  Sign Up', -> {create_account_instance}
+            menu.choice '🚪  Exit', -> {puts "\e[H\e[2J"; exit}
         end
     end
     
     def self.login_verification
         username
-        puts "If you would like to return to the opening menu, simply enter an incorrect password"
         if find_existing_username
             password
         else
@@ -79,7 +78,7 @@ class User < ActiveRecord::Base
     ##### Logic for deleting your account #####
 
     def self.delete_account_flow
-        @decision = @prompt.select("Are you sure?", ["Yes", "No"])
+        @decision = @prompt.select("Are you sure you want to delete your account?", ["Yes", "No"])
         @decision == "Yes" ? destroy_account : CommandLineInterface.general_menu
     end
 
@@ -94,9 +93,9 @@ class User < ActiveRecord::Base
 
     def self.validate(method, type)
         if method == "ask" 
-            @prompt.ask("Enter your #{type}:") { |input| input.validate /^^(?=.{1,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/, "Sorry, your entry must be at least 2 characters and not contain symbols." }
+            @prompt.ask("Enter your #{type}:") { |input| input.validate /^^(?=.{1,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/, "Sorry, your entry must be at least 1 character and not contain symbols." }
         else
-            @prompt.mask("Enter your #{type}:") { |input| input.validate /^^(?=.{1,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/, "Sorry, your entry must be at least 2 characters and not contain symbols." }
+            @prompt.mask("Enter your #{type}:") { |input| input.validate /^^(?=.{1,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/, "Sorry, your entry must be at least 1 character and not contain symbols." }
         end
     end
 
@@ -109,7 +108,7 @@ class User < ActiveRecord::Base
 
     #Used in the General Menu feature in the CLI Class#
     def self.logout
-        @prompt.keypress("😈 Logging out now... See you soon! 😈", timeout: 3)
+        @prompt.keypress("😈  Logging out now... See you soon!  😈", timeout: 3)
         fork{ exec 'killall', "afplay" }
         start_program
     end

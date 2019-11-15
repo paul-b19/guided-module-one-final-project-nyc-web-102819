@@ -9,10 +9,10 @@ class Poem < ActiveRecord::Base
 
     def self.search_for_poem
         CommandLineInterface.logo("./design/logo_small.png", false)
-        @@prompt.select("Search by:") do |menu|
-            menu.choice "* Title", -> {search_by_title}
-            menu.choice "* Author", -> {Author.search_by_author}
-            menu.choice "* Back to Main Menu", -> {
+        @@prompt.select("Select one of the following options:") do |menu|
+            menu.choice "📚  Search by Title", -> {search_by_title}
+            menu.choice "🖋   Search by Author", -> {Author.search_by_author}
+            menu.choice "🏡  Main Menu", -> {
                 CommandLineInterface.logo("./design/logo_small.png", false);
                 CommandLineInterface.general_menu}
         end
@@ -30,10 +30,10 @@ class Poem < ActiveRecord::Base
         else
             puts "Sorry, poem was not found. Please try another input."
             @@menu_selection_footer = @@prompt.select("Options:") do |menu|
-                menu.choice '* Try Again', -> {search_by_title}
-                menu.choice "* Back to Main Menu", -> {
+                menu.choice '⏪ Try Again', -> {search_by_title}
+                menu.choice "🔍 Poem Search", -> {
                     CommandLineInterface.logo("./design/logo_small.png", false);
-                    CommandLineInterface.general_menu}
+                    Poem.search_for_poem}
             end
         end
     end
@@ -48,18 +48,19 @@ class Poem < ActiveRecord::Base
         puts i.content
         puts " "
         @@menu_selection_footer = @@prompt.select("Options:") do |menu|
-            menu.choice '* Play Music', -> {Poem.music_selection(arg)}
-            menu.choice '* Stop Music', -> {Poem.stop_song(arg)}
+            menu.choice '▶️  Play Music', -> {Poem.music_selection(arg)}
+            menu.choice '⏹  Stop Music', -> {Poem.stop_song(arg)}
             if Lesson.exists?(user_id: User.user_id, poem_id: i.id)
-                menu.choice '* Remove from your collection', -> {
+                menu.choice '💔 Unfavorite', -> {
                     Lesson.find_by(user_id: User.user_id, poem_id: i.id).destroy;
                     poem_title(arg)}
             else
-                menu.choice '* Add to collection', -> {
+                menu.choice '❤️  Favorite', -> {
                     Lesson.lesson_creation(user_id: User.user_id, poem_id: i.id);
                     poem_title(arg)}
             end
-            menu.choice "* Back to Main Menu", -> {
+            menu.choice "🔍 Search", -> {Poem.search_for_poem}
+            menu.choice "🏡 Main Menu", -> {
                 CommandLineInterface.logo("./design/logo_small.png", false);
                 CommandLineInterface.general_menu}
         end 
@@ -67,8 +68,8 @@ class Poem < ActiveRecord::Base
 
     def self.music_selection(arg)
         @@prompt.select("Please select music:") do |menu|
-            Dir['./music/*'].each do |fname|
-                menu.choice "* #{fname}".tap{|s| 
+            Dir['./music/*'].sort.each do |fname|
+                menu.choice "🎵 #{fname}".tap{|s| 
                 s.slice!("./music/")}.tap{|s| 
                 s.slice!(".mp3")}, -> {play_song("#{fname}")}
             end

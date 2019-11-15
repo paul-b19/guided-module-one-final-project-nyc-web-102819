@@ -14,11 +14,11 @@ class Lesson < ActiveRecord::Base
             Poem.find_by(id: lesson.poem_id).title
         end.sort
         if l.count == 0
-            @@prompt.keypress ("There is nothing in Your Collection yet, press any key to go back to Main Menu")
+            @@prompt.keypress("Sorry! There is nothing in your Poem Collection yet. Press any key to go back to the Main Menu.")
             CommandLineInterface.logo("./design/logo_small.png", false)
             CommandLineInterface.general_menu 
         else  
-            @@selected_lesson = @@prompt.select("Select Poem:", l)
+            @@selected_lesson = @@prompt.select("My Poem Collection:", l)
             Poem.poem_title({title: @@selected_lesson})
         end
     end

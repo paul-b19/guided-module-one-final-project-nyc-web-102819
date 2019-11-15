@@ -30,14 +30,14 @@ class CommandLineInterface
 
     def self.general_menu
         @@prompt.select("Please select one of the options below:") do |menu|
-            menu.choice '* Search for Poem', -> {Poem.search_for_poem}
-            menu.choice '* Open your Collection', -> {
+            menu.choice '🔍 Poem Search', -> {Poem.search_for_poem}
+            menu.choice '❤️  My Collection', -> {
                 CommandLineInterface.logo("./design/logo_small.png", false);
                 Lesson.lesson_selection}
-            menu.choice '* Delete Account', -> {
+            menu.choice '🗑  Delete Account', -> {
                 CommandLineInterface.logo("./design/logo_small.png", false);
                 User.delete_account_flow}
-            menu.choice '* Log Out', -> {User.logout}
+            menu.choice '✌️  Log Out', -> {User.logout}
         end
     end
 end
